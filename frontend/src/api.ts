@@ -1,27 +1,29 @@
-import type { Catalog, BuildConfig, PriceResponse, SavedConfig } from "./types";
+// Use relative URLs in production, explicit URL in dev if needed
+export const API_URL = import.meta.env.VITE_API_URL || "";
 
-export async function getCatalog(): Promise<Catalog> {
-  const res = await fetch("/api/catalog");
-  if (!res.ok) throw new Error("Failed to load catalog");
-  return res.json();
+async function handle(r: Response) {
+  if (!r.ok) throw new Error(`API Error: ${r.status}`);
+  return r.json();
 }
 
-export async function getPrice(cfg: BuildConfig): Promise<PriceResponse> {
-  const res = await fetch("/api/price", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cfg),
-  });
-  if (!res.ok) throw new Error("Failed to get price");
-  return res.json();
+export async function getCatalog() {
+  return handle(await fetch(`${API_URL}/api/catalog`));
 }
 
-export async function saveConfig(cfg: BuildConfig): Promise<SavedConfig> {
-  const res = await fetch("/api/configs", {
+export async function getPrice(cfg: any) {
+  return handle(await fetch(`${API_URL}/api/price`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify(cfg),
-  });
-  if (!res.ok) throw new Error("Failed to save config");
-  return res.json();
+  }));
+}
+
+export async function saveConfig(cfg: any) {
+  return handle(
+    await fetch(`${API_URL}/api/configs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cfg),
+    })
+  );
 }

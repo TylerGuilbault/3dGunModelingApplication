@@ -1,0 +1,63 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Firearm {
+  id          String   @id @default(cuid())
+  name        String
+  sku         String   @unique
+  modelPath   String
+  basePrice   Float
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  parts        Part[]
+  pricingRules PricingRule[]
+}
+
+model Part {
+  id           String   @id @default(cuid())
+  firearmId    String
+  meshName     String
+  partType     String
+  displayName  String
+  customizable Boolean  @default(true)
+  
+  firearm      Firearm  @relation(fields: [firearmId], references: [id], onDelete: Cascade)
+  
+  @@unique([firearmId, meshName])
+}
+
+model ColorOption {
+  id       String @id @default(cuid())
+  name     String
+  hex      String
+  price    Float
+  brand    String
+}
+
+model ModificationOption {
+  id          String  @id @default(cuid())
+  name        String
+  partType    String
+  description String?
+  price       Float
+  modelPath   String?
+}
+
+model PricingRule {
+  id         String @id @default(cuid())
+  firearmId  String
+  partType   String
+  laborCost  Float
+  
+  firearm    Firearm @relation(fields: [firearmId], references: [id], onDelete: Cascade)
+  
+  @@unique([firearmId, partType])
+}
