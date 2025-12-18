@@ -160,10 +160,10 @@ function XboxStarField() {
         />
       </bufferGeometry>
 
-      {/* Xbox 360 neon green particles */}
+      {/* Xbox 360 particles */}
       <pointsMaterial
-        color="#7CFF42"
-        size={3}              // base size
+        color="#e85c5c"
+        size={1.8}              // base size
         sizeAttenuation
         transparent
         opacity={0.9}
@@ -214,14 +214,11 @@ function CustomViewer({
 
   return (
     <Canvas shadows camera={{ position: [2.7, 1.7, 3.1], fov: 45 }}>
-      {/* Soft white dashboard background */}
-      <color attach="background" args={["#f4f6f8"]} />
+      {/* Soft tinted background */}
+      <color attach="background" args={["#b2b6b0"]} />
 
-      {/* Xbox-green particles */}
+      {/* Xbox particles */}
       <XboxStarField />
-
-      {/* Grid-only optical room (no ceiling) */}
-      <CustomerRoomGrid />
 
       {/* Lighting */}
       <ambientLight intensity={0.4} />
@@ -448,24 +445,36 @@ function ConfiguratorPage() {
       style={{
         display: "grid",
         gridTemplateColumns: "360px 1fr",
-        height: "calc(100vh - 60px)",
+        height: "calc(100vh - 120px)",
+        maxWidth: "1200px",
+        width: "94%",
+        margin: "16px auto 24px",
+        padding: "8px 12px",
+        background: "rgba(10, 15, 18, 0.85)",
+        color: "#f6e8e8",
+        borderRadius: 12,
+        overflow: "hidden",
+        boxShadow: "0 20px 60px -30px rgba(0,0,0,0.55)",
+        position: "relative",
       }}
     >
       {/* Sidebar */}
       <aside
         style={{
-          padding: 16,
-          borderRight: "1px solid #eee",
+          padding: 20,
+          borderRight: "1px solid rgba(232,92,92,0.3)",
           overflowY: "auto",
-          backgroundColor: "#fff",
+          background:
+            "linear-gradient(180deg, rgba(46,24,28,0.75), rgba(34,18,22,0.9))",
+          backdropFilter: "blur(6px)",
         }}
       >
-        <h1 style={{ marginBottom: 8, color: "#111" }}>
-          Custom Laser Concepts
-        </h1>
-        <h2 style={{ margin: "12px 0", color: "#333" }}>
-          Configurator (MVP)
-        </h2>
+          <h1 style={{ marginBottom: 6, color: "#ffc7c7", fontWeight: 700 }}>
+            Custom Laser Concepts
+          </h1>
+          <h2 style={{ margin: "10px 0 12px", color: "#f6e8e8" }}>
+            Configurator (MVP)
+          </h2>
 
         {/* Firearm selector */}
         {uploadedFirearms.length > 0 && (
@@ -476,7 +485,7 @@ function ConfiguratorPage() {
                 fontSize: 14,
                 fontWeight: "bold",
                 marginBottom: 8,
-                color: "#111",
+                color: "#ffc7c7",
               }}
             >
               Select Firearm
@@ -494,18 +503,19 @@ function ConfiguratorPage() {
               }}
               style={{
                 width: "100%",
-                padding: 8,
-                backgroundColor: "#fff",
-                color: "#111",
-                border: "1px solid #ccc",
-                borderRadius: 4,
+                padding: 10,
+                backgroundColor: "rgba(28,16,18,0.78)",
+                color: "#f6e8e8",
+                border: "1px solid rgba(232,92,92,0.35)",
+                borderRadius: 10,
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
               }}
             >
               {uploadedFirearms.map((firearm) => (
                 <option
                   key={firearm.id}
                   value={firearm.id}
-                  style={{ color: "#111" }}
+                  style={{ color: "#0f0f0f" }}
                 >
                   {firearm.name} - ${firearm.basePrice}
                 </option>
@@ -514,15 +524,15 @@ function ConfiguratorPage() {
           </section>
         )}
 
-        {!catalog && <p style={{ color: "#666" }}>Loading catalog…</p>}
+        {!catalog && <p style={{ color: "#d8c7c7" }}>Loading catalog…</p>}
 
         {/* Finishes */}
         <section style={{ marginTop: 16 }}>
-          <h3 style={{ marginBottom: 8, color: "#111" }}>Finishes</h3>
+          <h3 style={{ marginBottom: 8, color: "#f6e8e8" }}>Finishes</h3>
 
           {selectedFirearm ? (
             uniquePartTypes.length === 0 ? (
-              <p style={{ fontSize: 12, color: "#666" }}>
+              <p style={{ fontSize: 12, color: "#d8c7c7" }}>
                 No parts tagged yet for this model. Tag parts in the Admin
                 Dashboard to enable per-part coloring.
               </p>
@@ -532,18 +542,20 @@ function ConfiguratorPage() {
                   key={type}
                   style={{
                     marginBottom: 12,
-                    padding: 8,
-                    borderRadius: 6,
+                    padding: 12,
+                    borderRadius: 12,
                     border:
                       activePartType === type
-                        ? "2px solid #0ea5e9"
-                        : "1px solid #e5e7eb",
+                        ? "2px solid rgba(232,92,92,0.7)"
+                        : "1px solid rgba(232,92,92,0.28)",
                     backgroundColor:
-                      activePartType === type ? "#f0f9ff" : "#ffffff",
+                      activePartType === type
+                        ? "rgba(48,26,30,0.92)"
+                        : "rgba(26,18,20,0.78)",
                     boxShadow:
                       activePartType === type
-                        ? "0 0 0 2px rgba(14,165,233,0.25)"
-                        : "none",
+                        ? "0 0 0 2px rgba(232,92,92,0.2)"
+                        : "inset 0 1px 0 rgba(255,255,255,0.04)",
                     cursor: "pointer",
                     transition:
                       "background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease",
@@ -556,12 +568,26 @@ function ConfiguratorPage() {
                 >
                   <label
                     style={{
-                      display: "block",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
                       fontSize: 12,
-                      marginBottom: 6,
-                      color: "#333",
+                      marginBottom: 10,
+                      color: "#f6e8e8",
                     }}
                   >
+                    <span
+                      style={{
+                        display: finishColors[type] ? "inline-block" : "none",
+                        height: 12,
+                        width: 12,
+                        borderRadius: "999px",
+                        background: finishColors[type] ?? "transparent",
+                        boxShadow: finishColors[type]
+                          ? "0 0 10px rgba(232,92,92,0.6)"
+                          : "none",
+                      }}
+                    />
                     {PART_TYPE_LABELS[type] ?? type}
                   </label>
                   <input
@@ -575,8 +601,10 @@ function ConfiguratorPage() {
                     }
                     style={{
                       width: "100%",
-                      height: 36,
-                      border: "none",
+                      height: 40,
+                      border: "1px solid rgba(232,92,92,0.35)",
+                      borderRadius: 10,
+                      background: "rgba(28,16,18,0.78)",
                     }}
                   />
                 </div>
@@ -584,89 +612,49 @@ function ConfiguratorPage() {
             )
           ) : (
             <>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 6,
-                  color: "#333",
-                }}
-              >
-                Slide
-              </label>
-              <input
-                type="color"
-                value={slideHex}
-                onChange={(e) => setSlideHex(e.target.value)}
-                style={{
-                  width: "100%",
-                  height: 36,
-                  border: "none",
-                  marginBottom: 12,
-                }}
-              />
-
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 6,
-                  color: "#333",
-                }}
-              >
-                Frame
-              </label>
-              <input
-                type="color"
-                value={frameHex}
-                onChange={(e) => setFrameHex(e.target.value)}
-                style={{
-                  width: "100%",
-                  height: 36,
-                  border: "none",
-                  marginBottom: 12,
-                }}
-              />
-
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 6,
-                  color: "#333",
-                }}
-              >
-                Trigger
-              </label>
-              <input
-                type="color"
-                value={triggerHex}
-                onChange={(e) => setTriggerHex(e.target.value)}
-                style={{
-                  width: "100%",
-                  height: 36,
-                  border: "none",
-                  marginBottom: 12,
-                }}
-              />
-
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 6,
-                  color: "#333",
-                }}
-              >
-                Magazine
-              </label>
-              <input
-                type="color"
-                value={magHex}
-                onChange={(e) => setMagHex(e.target.value)}
-                style={{ width: "100%", height: 36, border: "none" }}
-              />
-              <p style={{ fontSize: 12, color: "#555", marginTop: 8 }}>
+              {[
+                ["Slide", slideHex, setSlideHex],
+                ["Frame", frameHex, setFrameHex],
+                ["Trigger", triggerHex, setTriggerHex],
+                ["Magazine", magHex, setMagHex],
+              ].map(([label, value, setter]) => (
+                <div key={label as string} style={{ marginBottom: 12 }}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 12,
+                      marginBottom: 10,
+                      color: "#f6e8e8",
+                    }}
+                  >
+                    <span
+                      style={{
+                        height: 12,
+                        width: 12,
+                        borderRadius: "999px",
+                        background: value as string,
+                        boxShadow: "0 0 10px rgba(232,92,92,0.6)",
+                      }}
+                    />
+                    {label as string}
+                  </label>
+                  <input
+                    type="color"
+                    value={value as string}
+                    onChange={(e) => (setter as any)(e.target.value)}
+                    style={{
+                      width: "100%",
+                      height: 40,
+                      border: "1px solid rgba(232,92,92,0.35)",
+                      borderRadius: 10,
+                      background: "rgba(28,16,18,0.78)",
+                    }}
+                  />
+                </div>
+              ))}
+              <p style={{ fontSize: 12, color: "#d8c7c7", marginTop: 8 }}>
                 We'll swap these for Cerakote swatches next.
               </p>
             </>
@@ -727,12 +715,12 @@ function ConfiguratorPage() {
               marginBottom: 8,
             }}
           >
-            <strong style={{ color: "#111" }}>Price</strong>
-            <strong style={{ color: "#111" }}>
+            <strong style={{ color: "#f6e8e8" }}>Price</strong>
+            <strong style={{ color: "#f6e8e8" }}>
               {price ? `$${price.total}` : "—"}
             </strong>
           </div>
-          <div style={{ fontSize: 12, color: "#666", marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#d8c7c7", marginBottom: 12 }}>
             ETA: {price ? `${price.etaDays} days` : "—"}
           </div>
           <button
@@ -742,11 +730,12 @@ function ConfiguratorPage() {
               width: "100%",
               padding: 12,
               borderRadius: 8,
-              border: "1px solid #ddd",
-              background: "#111",
-              color: "#fff",
+              border: "1px solid rgba(232,92,92,0.4)",
+              background: "linear-gradient(90deg, #ff9e9e, #f46a6a, #e04848)",
+              color: "#0b1a12",
               cursor: "pointer",
               opacity: saving ? 0.7 : 1,
+              boxShadow: "0 10px 30px -15px rgba(232,92,92,0.6)",
             }}
           >
             {saving ? "Saving…" : "Save & Get Quote"}
@@ -755,28 +744,42 @@ function ConfiguratorPage() {
       </aside>
 
       {/* 3D Viewer column */}
-      <main style={{ height: "100%", background: "#f7f7f7" }}>
-        {selectedFirearm ? (
-          <CustomViewer
-            firearm={selectedFirearm}
-            partColors={finishColors}
-            activePartType={activePartType}
-            onPartClick={(partType) =>
-              setActivePartType((prev) => (prev === partType ? null : partType))
-            }
-          />
-        ) : (
-          <Viewer
-            baseColor={frameHex}
-            slideColor={slideHex}
-            triggerColor={triggerHex}
-            magColor={magHex}
-            activePartType={activePartType}
-            onPartClick={(partType) =>
-              setActivePartType((prev) => (prev === partType ? null : partType))
-            }
-          />
-        )}
+      <main style={{ height: "100%", background: "transparent", overflow: "hidden" }}>
+        <div
+          className="relative h-full w-full"
+          style={{
+            backgroundColor: "#c2c7c0",
+            backgroundImage:
+              "repeating-linear-gradient(45deg, rgba(220,90,90,0.16) 0, rgba(220,90,90,0.16) 42px, transparent 42px, transparent 84px)," +
+              "repeating-linear-gradient(-45deg, rgba(80,80,80,0.16) 0, rgba(80,80,80,0.16) 36px, transparent 36px, transparent 72px)," +
+              "radial-gradient(220px 140px at 20% 25%, rgba(210,110,110,0.18), transparent 60%)," +
+              "radial-gradient(180px 120px at 70% 30%, rgba(100,100,100,0.16), transparent 60%)," +
+              "radial-gradient(240px 180px at 60% 75%, rgba(160,80,80,0.12), transparent 65%)",
+            backgroundBlendMode: "multiply",
+          }}
+        >
+          {selectedFirearm ? (
+            <CustomViewer
+              firearm={selectedFirearm}
+              partColors={finishColors}
+              activePartType={activePartType}
+              onPartClick={(partType) =>
+                setActivePartType((prev) => (prev === partType ? null : partType))
+              }
+            />
+          ) : (
+            <Viewer
+              baseColor={frameHex}
+              slideColor={slideHex}
+              triggerColor={triggerHex}
+              magColor={magHex}
+              activePartType={activePartType}
+              onPartClick={(partType) =>
+                setActivePartType((prev) => (prev === partType ? null : partType))
+              }
+            />
+          )}
+        </div>
       </main>
     </div>
   );
@@ -789,21 +792,21 @@ function Navigation() {
   const isAdmin = location.pathname.startsWith("/admin");
 
   return (
-    <nav className="bg-gray-900 text-white p-4 shadow-lg">
+    <nav className="bg-gradient-to-r from-[#2b0f13] via-[#31151b] to-[#1a1218] text-slate-100 p-4 shadow-[0_10px_30px_-20px_#ff7f7f] border-b border-red-400/20">
       <div className="max-w-7xl mx-auto flex items-center gap-6">
-        <h1 className="text-xl font-bold">3D Gun Configurator</h1>
+        <h1 className="text-xl font-bold text-red-100 drop-shadow">3D Gun Configurator</h1>
         <Link
           to="/configurator"
-          className={`hover:text-blue-400 transition ${
-            !isAdmin ? "text-blue-400" : ""
+          className={`hover:text-red-200 transition ${
+            !isAdmin ? "text-red-200 font-semibold" : "text-slate-200"
           }`}
         >
           Customer View
         </Link>
         <Link
           to="/admin/models"
-          className={`hover:text-blue-400 transition ${
-            isAdmin ? "text-blue-400" : ""
+          className={`hover:text-red-200 transition ${
+            isAdmin ? "text-red-200 font-semibold" : "text-slate-200"
           }`}
         >
           Admin Dashboard
@@ -817,7 +820,7 @@ function Navigation() {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen w-full relative overflow-hidden text-slate-100" style={{ background: "transparent" }}>
         <Navigation />
         <Routes>
           <Route path="/" element={<Navigate to="/configurator" replace />} />
@@ -829,3 +832,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+

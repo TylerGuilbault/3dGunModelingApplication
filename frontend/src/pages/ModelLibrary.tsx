@@ -87,15 +87,22 @@ export default function ModelLibrary() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8">Model Library</h1>
+    <div
+      className="p-8 max-w-7xl mx-auto text-slate-50 rounded-xl"
+      style={{
+        background:
+          "linear-gradient(135deg, rgba(44,20,24,0.9) 0%, rgba(36,18,24,0.9) 45%, rgba(26,14,18,0.94) 100%)",
+        boxShadow: "0 20px 60px -30px rgba(0,0,0,0.55)",
+      }}
+    >
+      <h1 className="text-4xl font-bold mb-8 text-red-100 drop-shadow">Model Library</h1>
 
       {/* Upload Form */}
       <form
         onSubmit={handleUpload}
-        className="bg-white p-6 rounded-lg shadow-md mb-8"
+        className="bg-gradient-to-b from-[#2a1b1d]/80 to-[#1b1014]/85 border border-red-300/25 p-6 rounded-lg shadow-[0_20px_50px_-35px_#ff7f7f40] mb-8 backdrop-blur"
       >
-        <h2 className="text-2xl font-semibold mb-4">Upload New Model</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-red-100">Upload New Model</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input
@@ -103,14 +110,14 @@ export default function ModelLibrary() {
             name="name"
             placeholder="Gun Name *"
             required
-            className="border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+            className="border border-red-300/30 bg-black/30 text-slate-50 p-3 rounded focus:ring-2 focus:ring-red-300/60"
           />
           <input
             type="text"
             name="sku"
             placeholder="SKU *"
             required
-            className="border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+            className="border border-red-300/30 bg-black/30 text-slate-50 p-3 rounded focus:ring-2 focus:ring-red-300/60"
           />
         </div>
 
@@ -120,14 +127,14 @@ export default function ModelLibrary() {
           placeholder="Base Price *"
           step="0.01"
           required
-          className="border border-gray-300 p-3 rounded w-full mb-4 focus:ring-2 focus:ring-blue-500"
+          className="border border-red-300/30 bg-black/30 text-slate-50 p-3 rounded w-full mb-4 focus:ring-2 focus:ring-red-300/60"
         />
 
         <textarea
           name="description"
           placeholder="Description (optional)"
           rows={3}
-          className="border border-gray-300 p-3 rounded w-full mb-4 focus:ring-2 focus:ring-blue-500"
+          className="border border-red-300/30 bg-black/30 text-slate-50 p-3 rounded w-full mb-4 focus:ring-2 focus:ring-red-300/60"
         />
 
         <input
@@ -135,25 +142,25 @@ export default function ModelLibrary() {
           name="model"
           accept=".glb"
           required
-          className="border border-gray-300 p-3 rounded w-full mb-4"
+          className="border border-red-300/30 bg-black/30 text-slate-50 p-3 rounded w-full mb-4"
         />
 
         <button
           type="submit"
           disabled={uploading}
-          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
+          className="bg-gradient-to-r from-[#ff9e9e] to-[#e04848] text-[#0b1a12] px-6 py-3 rounded shadow-lg shadow-[#ff7f7f40] hover:brightness-110 disabled:bg-gray-500 disabled:text-gray-200 disabled:cursor-not-allowed font-semibold"
         >
           {uploading ? "Uploading..." : "Upload Model"}
         </button>
       </form>
 
       {/* Model List */}
-      <h2 className="text-2xl font-semibold mb-4">
+      <h2 className="text-2xl font-semibold mb-4 text-red-100">
         Uploaded Models ({firearms.length})
       </h2>
 
       {firearms.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-slate-200 text-center py-8">
           No models uploaded yet. Upload one above!
         </p>
       ) : (
@@ -161,27 +168,27 @@ export default function ModelLibrary() {
           {firearms.map((firearm) => (
             <div
               key={firearm.id}
-              className="border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow bg-white"
+              className="border border-red-200/25 rounded-lg p-5 hover:shadow-lg transition-shadow bg-black/30 text-slate-50"
             >
               <h3 className="font-bold text-xl mb-2">{firearm.name}</h3>
-              <p className="text-sm text-gray-600 mb-1">SKU: {firearm.sku}</p>
-              <p className="text-lg font-semibold text-green-600 mb-2">
+              <p className="text-sm text-slate-200 mb-1">SKU: {firearm.sku}</p>
+              <p className="text-lg font-semibold text-[#7ee07c] mb-2">
                 ${firearm.basePrice}
               </p>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-xs text-slate-300 mb-4">
                 {firearm.parts?.length || 0} parts tagged
               </p>
 
               <div className="flex gap-2">
                 <button
                   onClick={() => navigate(`/admin/tag/${firearm.id}`)}
-                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm font-medium"
+                  className="flex-1 bg-gradient-to-r from-[#ff9e9e] to-[#e04848] text-[#0b1a12] px-4 py-2 rounded shadow hover:brightness-110 text-sm font-medium"
                 >
                   Tag Parts
                 </button>
                 <button
                   onClick={() => handleDelete(firearm.id, firearm.name)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm font-medium"
+                  className="bg-black/40 text-slate-100 px-4 py-2 rounded border border-red-200/25 hover:bg-black/30 text-sm font-medium"
                 >
                   Delete
                 </button>
@@ -193,3 +200,4 @@ export default function ModelLibrary() {
     </div>
   );
 }
+

@@ -101,7 +101,7 @@ function InteractiveModel({
 
           if (material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshPhongMaterial) {
             if (child.name === selectedMesh) {
-              material.emissive = new THREE.Color(0x00ff00);
+              material.emissive = new THREE.Color(0xff4d4d);
               material.emissiveIntensity = 1.0;
               material.needsUpdate = true;
             } else {
@@ -111,7 +111,7 @@ function InteractiveModel({
             }
           } else if (material instanceof THREE.MeshBasicMaterial) {
             if (child.name === selectedMesh) {
-              material.color = new THREE.Color(0x00ff00);
+              material.color = new THREE.Color(0xff4d4d);
               material.needsUpdate = true;
             } else if (child.userData.originalColor) {
               material.color = child.userData.originalColor.clone();
@@ -142,104 +142,97 @@ function PartTypeBrowser({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [selectedCategory, setSelectedCategory] = useState<string>(PART_CATEGORIES[0]?.label || "");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const filteredCategories = searchQuery
-    ? PART_CATEGORIES.map(cat => ({
-        ...cat,
-        options: cat.options.filter(opt =>
-          opt.label.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      })).filter(cat => cat.options.length > 0)
-    : PART_CATEGORIES;
+  const searchTerm = searchQuery.toLowerCase();
 
-  const currentOptions = selectedCategory
-    ? filteredCategories.find(cat => cat.label === selectedCategory)?.options || []
-    : [];
+  const categories = PART_CATEGORIES.map((cat) => ({
+    ...cat,
+    options: cat.options.filter((opt) =>
+      searchTerm ? opt.label.toLowerCase().includes(searchTerm) : true
+    ),
+    matchesSearch:
+      !searchTerm ||
+      cat.label.toLowerCase().includes(searchTerm) ||
+      cat.options.some((opt) => opt.label.toLowerCase().includes(searchTerm)),
+  })).filter((cat) => cat.matchesSearch);
+
+  const activeCategoryData = activeCategory
+    ? categories.find((cat) => cat.label === activeCategory)
+    : null;
 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 bg-white z-10 flex flex-col">
-      {/* Header with Search and Close */}
-      <div className="flex items-center gap-3 p-3 border-b bg-gray-100">
+    <div
+      className="absolute inset-0 z-10 flex flex-col text-slate-50"
+      style={{ fontFamily: "'Segoe UI', 'Segoe UI Symbol', system-ui, sans-serif" }}
+    >
+      {/* Xbox 360-inspired chrome */}
+      <div className="flex items-center gap-3 p-3 border-b border-red-400/30 bg-gradient-to-r from-[#0f2a0f] via-[#123512] to-[#0f2a0f] shadow-[0_10px_40px_-20px_#ff7f7f]">
+        {activeCategory && (
+          <button
+            onClick={() => setActiveCategory(null)}
+            className="px-3 py-2 rounded-md bg-black/40 text-red-200 border border-red-300/30 hover:bg-black/30 transition shadow"
+            title="Back to categories"
+          >
+            ← Categories
+          </button>
+        )}
         <input
           type="text"
           placeholder="Search parts..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-gray-900"
+          className="flex-1 p-2 rounded-md text-sm bg-black/30 text-slate-50 placeholder:text-slate-300 border border-red-300/40 focus:ring-2 focus:ring-red-300/70 focus:outline-none shadow-inner"
           autoFocus
         />
         <button
           onClick={onClose}
-          className="p-2 hover:bg-gray-200 rounded transition"
+          className="px-4 py-2 rounded-md bg-gradient-to-r from-[#ff7f7f] to-[#e63946] text-black font-semibold shadow-lg shadow-[#ff7f7f40] hover:brightness-110 transition"
           title="Close"
         >
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          Close
         </button>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Horizontal Category Tabs */}
-        <div className="flex-none w-56 overflow-y-auto bg-gray-800">
-          {filteredCategories.map((category) => (
-            <button
-              key={category.label}
-              type="button"
-              onClick={() => setSelectedCategory(category.label)}
-              className={`w-full p-3 text-left text-sm border-b border-gray-700 transition-colors ${
-                selectedCategory === category.label
-                  ? "bg-blue-600 text-white font-semibold"
-                  : "text-gray-100 hover:bg-gray-700"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span>{category.label}</span>
-                <span className="text-xs opacity-70">({category.options.length})</span>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Options Grid - More columns to reduce scrolling */}
-        <div className="flex-1 overflow-y-auto p-4 bg-white">
-          {searchQuery && filteredCategories.length > 0 ? (
-            <div className="space-y-4">
-              {filteredCategories.map((category) => (
-                <div key={category.label}>
-                  <h4 className="text-xs font-bold text-gray-600 uppercase mb-2 tracking-wide">
-                    {category.label}
-                  </h4>
-                  <div className="grid grid-cols-7 gap-2">
-                    {category.options.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          onChange(option.value);
-                          onClose();
-                          setSearchQuery("");
-                        }}
-                        className={`p-2 text-left text-xs rounded border transition-all ${
-                          value === option.value
-                            ? "bg-blue-600 text-white border-blue-700 font-semibold"
-                            : "bg-gray-50 text-gray-900 border-gray-300 hover:bg-blue-50"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
+      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-[#0c1b0c] via-[#0e2310] to-[#0a180c]">
+        {!activeCategoryData ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {categories.map((category) => (
+              <button
+                key={category.label}
+                type="button"
+                onClick={() => setActiveCategory(category.label)}
+                className="flex flex-col items-start gap-2 p-3 rounded-lg border border-red-300/30 bg-white/10 hover:bg-white/15 shadow-[0_10px_30px_-20px_#00ff88] transition text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2 w-2 rounded-full bg-gradient-to-r from-[#ff7f7f] to-[#e63946] shadow-[0_0_10px_#ff7f7f]"></span>
+                  <span className="font-semibold text-sm truncate">{category.label}</span>
                 </div>
-              ))}
+                <div className="text-[12px] text-slate-200/80 flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-black/30 border border-white/15 rounded-full shadow-inner">
+                    {category.options.length} parts
+                  </span>
+                  <span className="text-red-200 font-bold">▸</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold tracking-wide text-red-200">
+                {activeCategoryData.label}
+              </h3>
+              <span className="text-xs text-slate-200/80">
+                {activeCategoryData.options.length} options
+              </span>
             </div>
-          ) : currentOptions.length > 0 ? (
-            <div className="grid grid-cols-7 gap-2">
-              {currentOptions.map((option) => (
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              {activeCategoryData.options.map((option) => (
                 <button
                   key={option.value}
                   type="button"
@@ -247,23 +240,24 @@ function PartTypeBrowser({
                     onChange(option.value);
                     onClose();
                     setSearchQuery("");
+                    setActiveCategory(null);
                   }}
-                  className={`p-2 text-left text-sm rounded border transition-all ${
+                  className={`p-3 text-left text-xs rounded-md border transition-all shadow-sm ${
                     value === option.value
-                      ? "bg-blue-600 text-white border-blue-700 font-semibold"
-                      : "bg-gray-50 text-gray-900 border-gray-300 hover:bg-blue-50 hover:border-blue-400"
+                      ? "bg-gradient-to-r from-[#ff7f7f] to-[#e63946] text-black border-red-300 shadow-lg shadow-[#ff7f7f40]"
+                      : "bg-black/25 text-slate-50 border-white/10 hover:border-red-300/60 hover:bg-black/15"
                   }`}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
-          ) : (
-            <div className="text-center text-gray-500 text-sm py-8">
-              No parts found
-            </div>
-          )}
-        </div>
+
+            {activeCategoryData.options.length === 0 && (
+              <div className="text-xs italic text-slate-300">No matches for this category.</div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -288,23 +282,21 @@ function MeshesBrowser({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 bg-white z-10 flex flex-col">
+    <div className="absolute inset-0 bg-gradient-to-br from-[#0c1b0c] via-[#0e2310] to-[#0a180c] z-10 flex flex-col text-slate-50">
       {/* Header with Close Button */}
-      <div className="flex items-center justify-between p-3 border-b bg-gray-100">
-        <h3 className="font-bold text-gray-900">All Meshes ({meshes.length})</h3>
+      <div className="flex items-center justify-between p-3 border-b border-red-300/30 bg-black/30 shadow-inner">
+        <h3 className="font-bold text-red-100">All Meshes ({meshes.length})</h3>
         <button
           onClick={onClose}
-          className="p-2 hover:bg-gray-200 rounded transition"
+          className="px-3 py-2 rounded-md bg-black/40 text-red-200 border border-red-300/30 hover:bg-black/30 transition shadow"
           title="Close"
         >
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          Close
         </button>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
           {meshes.map((meshName) => {
             const tag = meshTags[meshName];
             const isTagged = tag && tag.partType !== "";
@@ -318,17 +310,17 @@ function MeshesBrowser({
                 }}
                 className={`p-2 rounded border cursor-pointer transition-all ${
                   selectedMesh === meshName
-                    ? "bg-blue-100 border-blue-500 ring-2 ring-blue-300"
+                    ? "bg-gradient-to-r from-[#ff7f7f] to-[#e63946] text-black border-red-300 ring-2 ring-red-200"
                     : isTagged
-                    ? "bg-green-50 border-green-400"
-                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                    ? "bg-black/25 border-red-300/60 text-slate-50"
+                    : "bg-black/20 border-white/10 hover:border-red-300/50 hover:bg-black/10"
                 }`}
               >
-                <span className="font-medium text-xs text-gray-900 block truncate" title={meshName}>
+                <span className="font-medium text-xs block truncate" title={meshName}>
                   {meshName}
                 </span>
                 {isTagged && (
-                  <span className="text-xs bg-green-600 text-white px-1 py-0.5 rounded inline-block mt-1">
+                  <span className="text-xs bg-red-600 text-white px-1 py-0.5 rounded inline-block mt-1">
                     {getPartLabel(tag.partType)}
                   </span>
                 )}
@@ -543,13 +535,31 @@ export default function PartTagger() {
   const taggedCount = Object.values(meshTags).filter(tag => tag.partType !== "").length;
 
   return (
-    <div className="h-[calc(100vh-60px)] flex flex-col">
-      {/* 3D Viewer - 60% of screen */}
-      <div className="h-[60%] bg-gray-200 relative">
-        <Canvas camera={{ position: [2, 1, 2], fov: 50 }}>
-          <color attach="background" args={["#e5e7eb"]} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
+    <div
+      className="w-full flex flex-col text-slate-100 relative overflow-hidden"
+      style={{
+        height: "calc(100vh - 120px)",
+        maxWidth: "1200px",
+        width: "94%",
+        margin: "16px auto 24px",
+        padding: "8px 12px",
+        background: "rgba(10, 15, 18, 0.85)",
+        boxShadow: "0 20px 60px -30px rgba(0,0,0,0.55)",
+      }}
+    >
+      {/* decorative splashes */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.05),transparent_45%)]" />
+      <div className="absolute inset-0 pointer-events-none mix-blend-screen opacity-70 bg-[radial-gradient(circle_at_70%_60%,rgba(232,92,92,0.1),transparent_50%)]" />
+      <div className="absolute inset-0 pointer-events-none mix-blend-screen opacity-60 bg-[radial-gradient(120px_80px_at_25%_40%,rgba(232,92,92,0.18),transparent_60%),radial-gradient(180px_140px_at_80%_30%,rgba(160,80,80,0.16),transparent_60%),radial-gradient(90px_120px_at_50%_80%,rgba(255,255,255,0.08),transparent_70%)]" />
+      <div className="absolute inset-0 pointer-events-none opacity-25 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.03)_0,rgba(255,255,255,0.03)_6px,transparent_6px,transparent_12px)]" />
+
+      <div className="relative flex flex-col h-full px-4 pb-6 overflow-hidden">
+        {/* 3D Viewer - 60% of screen */}
+        <div className="flex-[0_0_56%] min-h-[320px] max-h-[62%] relative shadow-[0_20px_60px_-30px_#ff7f7f40] border-b border-red-400/20 bg-gradient-to-br from-[#dbe9d1] via-[#cfe4d8] to-[#e5f2f8]">
+          <Canvas camera={{ position: [2, 1, 2], fov: 50 }}>
+            <color attach="background" args={["#dce9df"]} />
+            <ambientLight intensity={0.6} />
+            <directionalLight position={[5, 5, 5]} intensity={1.1} />
 
           <Suspense fallback={<Loader />}>
             <InteractiveModel
@@ -565,14 +575,14 @@ export default function PartTagger() {
         </Canvas>
 
         {/* Firearm Info - Top Right */}
-        <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg">
-          <h2 className="font-bold text-lg text-gray-900">{firearm.name}</h2>
-          <p className="text-xs text-gray-600">SKU: {firearm.sku}</p>
+        <div className="absolute top-4 right-4 bg-black/50 px-4 py-2 rounded-lg shadow-lg border border-white/10 backdrop-blur-sm">
+          <h2 className="font-bold text-lg text-red-100">{firearm.name}</h2>
+          <p className="text-xs text-slate-200/80">SKU: {firearm.sku}</p>
         </div>
       </div>
 
-      {/* Bottom Panel - 40% of screen */}
-      <div className="h-[40%] bg-white border-t-2 border-gray-300 shadow-2xl flex relative">
+      {/* Bottom Panel */}
+      <div className="flex-1 min-h-0 bg-black/30 border-t border-red-400/20 shadow-inner flex relative backdrop-blur-sm overflow-hidden">
         
         {/* Part Type Browser Overlay */}
         <PartTypeBrowser
@@ -597,20 +607,20 @@ export default function PartTagger() {
         />
 
         {/* Left: Selected Mesh Info */}
-        <div className="flex-1 p-4 border-r">
+        <div className="flex-1 p-4 border-r border-white/10 bg-white/5 backdrop-blur-sm">
           {selectedTag ? (
             <div>
-              <h3 className="font-bold mb-3 text-blue-900 text-lg truncate" title={selectedMesh || ""}>
+              <h3 className="font-bold mb-3 text-red-100 text-lg truncate" title={selectedMesh || ""}>
                 {selectedMesh}
               </h3>
 
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-slate-100">
                 Part Type *
               </label>
               <button
                 type="button"
                 onClick={() => setPartTypeBrowserOpen(!partTypeBrowserOpen)}
-                className="w-full p-3 border-2 rounded bg-white text-gray-900 text-left flex items-center justify-between hover:bg-gray-50 transition font-medium"
+                className="w-full p-3 border border-red-300/30 rounded bg-black/30 text-slate-50 text-left flex items-center justify-between hover:bg-black/20 transition font-semibold shadow-inner"
               >
                 <span className="truncate">
                   {selectedTag.partType ? getPartLabel(selectedTag.partType) : "-- Select Part Type --"}
@@ -625,7 +635,7 @@ export default function PartTagger() {
                 </svg>
               </button>
 
-              <label className="block mb-2 mt-4 text-sm font-medium text-gray-900">
+              <label className="block mb-2 mt-4 text-sm font-medium text-slate-100">
                 Display Name
               </label>
               <input
@@ -634,7 +644,7 @@ export default function PartTagger() {
                 onChange={(e) =>
                   updateMeshTag(selectedMesh!, "displayName", e.target.value)
                 }
-                className="w-full p-3 border-2 rounded bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full p-3 border border-white/15 rounded bg-black/30 text-slate-50 focus:ring-2 focus:ring-red-300/70 focus:outline-none shadow-inner"
                 placeholder="e.g., Front Slide"
               />
 
@@ -649,15 +659,15 @@ export default function PartTagger() {
                       e.target.checked
                     )
                   }
-                  className="w-4 h-4"
+                  className="w-4 h-4 accent-red-400"
                 />
-                <span className="text-sm text-gray-900 font-medium">Customizable by customer</span>
+                <span className="text-sm text-slate-100 font-medium">Customizable by customer</span>
               </label>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 text-center">
+            <div className="flex items-center justify-center h-full text-slate-300 text-center">
               <div>
-                <p className="font-semibold mb-2 text-lg">No mesh selected</p>
+                <p className="font-semibold mb-2 text-lg text-red-100">No mesh selected</p>
                 <p className="text-sm">Click on a part in the 3D viewer above</p>
               </div>
             </div>
@@ -665,11 +675,11 @@ export default function PartTagger() {
         </div>
 
         {/* Right: Stats & Actions */}
-        <div className="w-56 border-l p-4 flex flex-col justify-between">
+        <div className="w-56 border-l border-white/10 p-4 flex flex-col justify-between bg-black/25 backdrop-blur-sm overflow-y-auto">
           <div>
             <div className="text-center mb-6">
-              <div className="text-4xl font-bold text-gray-900">{taggedCount}</div>
-              <div className="text-sm text-gray-600">of {meshes.length} tagged</div>
+              <div className="text-4xl font-bold text-red-100">{taggedCount}</div>
+              <div className="text-sm text-slate-200/80">of {meshes.length} tagged</div>
             </div>
 
             <button
@@ -677,7 +687,7 @@ export default function PartTagger() {
                 setMeshesBrowserOpen(true);
                 setPartTypeBrowserOpen(false);
               }}
-              className="w-full p-3 border-2 rounded bg-white text-gray-900 font-semibold hover:bg-gray-50 transition mb-4"
+              className="w-full p-3 border border-red-300/40 rounded bg-black/30 text-slate-50 font-semibold hover:bg-black/20 transition mb-4 shadow-inner"
             >
               All Meshes
             </button>
@@ -686,20 +696,23 @@ export default function PartTagger() {
           <div className="space-y-3">
             <button
               onClick={() => navigate("/admin/models")}
-              className="w-full bg-gray-500 text-white px-4 py-3 rounded hover:bg-gray-600 font-semibold transition"
+              className="w-full bg-black/40 text-slate-100 px-4 py-3 rounded border border-white/15 hover:bg-black/30 font-semibold transition"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving || taggedCount === 0}
-              className="w-full bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition"
+              className="w-full bg-gradient-to-r from-[#ff7f7f] to-[#e63946] text-black px-4 py-3 rounded shadow-lg shadow-[#ff7f7f40] hover:brightness-110 disabled:bg-gray-500 disabled:text-gray-200 disabled:cursor-not-allowed font-semibold transition"
             >
               {saving ? "Saving..." : "Save Tags"}
             </button>
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
+
+
